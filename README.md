@@ -1,0 +1,1 @@
+# Automated-Waste-Segregation-through-Object-Recognition-for-Sustainable-Waste-Management
