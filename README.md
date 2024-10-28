@@ -1,5 +1,4 @@
 # Automated-Waste-Segregation-through-Object-Recognition-for-Sustainable-Waste-Management
-# Garbage Classification and Detection with YOLOv5
 
 This project performs garbage classification using YOLOv5 for object detection. Each image is processed to detect objects (garbage) and save the results with bounding boxes and confidence scores.
 
@@ -34,4 +33,33 @@ This project performs garbage classification using YOLOv5 for object detection. 
 1. **Install the required libraries**:
    ```bash
    pip install opencv-python-headless numpy torchvision
+2. **Clone the YOLOv5 repository:**
+   ```bash
+   git clone https://github.com/ultralytics/yolov5.git  
+3. **Load the YOLOv5 model: This script uses the pretrained YOLOv5 model for object detection on images.**
+   ```bash
+   model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+
+4. **Iterate through Dataset and Perform Detection**
+    ```bash
+    for class_name in os.listdir(input_dir):
+    class_path = os.path.join(input_dir, class_name)
+    if os.path.isdir(class_path):
+        for image_name in os.listdir(class_path):
+            image_path = os.path.join(class_path, image_name)
+            if image_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+                image = cv2.imread(image_path)
+                if image is None:
+                    continue
+                results = model(image)
+                df = results.pandas().xyxy[0]
+                for index, row in df.iterrows():
+                    x1, y1, x2, y2, conf, cls, label = int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax']), row['confidence'], int(row['class']), row['name']
+                    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(image, f'{label} {conf:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                output_image_path = os.path.join(output_dir, f"detected_{image_name}")
+                cv2.imwrite(output_image_path, image)
+                print(f"Saved detected image to {output_image_path}")
+
+    
 
